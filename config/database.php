@@ -1,7 +1,7 @@
 <?php
 
 $host    = 'localhost';
-$db_name = 'tik_pbl';
+$db_name = 'pbl_ti_2025_a_muhammadislamikaffah';
 $user    = 'root';
 $pass    = '';
 
