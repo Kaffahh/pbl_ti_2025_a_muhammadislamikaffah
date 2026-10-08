@@ -53,6 +53,7 @@ class AccountType
             $isEdit = false;
             $this->load->view('views/accounttype/form.php', [
                 'isEdit' => $isEdit,
+                'accounttype' => $_POST,
                 'errors' => $errors,
             ]);
             return;
@@ -101,7 +102,7 @@ class AccountType
             $this->load->view('views/accounttype/form.php', [
                 'isEdit'    => $isEdit,
                 'id'        => $id,
-                'accounttype' => $accounttype,
+                'accounttype' => array_merge($accounttype, $_POST),
                 'errors'    => $errors,
             ]);
             return;

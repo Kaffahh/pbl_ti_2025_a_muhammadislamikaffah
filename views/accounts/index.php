@@ -42,7 +42,11 @@
                         <td class="fw-semibold"><?= htmlspecialchars($row['name']) ?></td>
                         <td><?= htmlspecialchars($row['email']) ?></td>
                         <td><?= htmlspecialchars($row['account_type_name']) ?></td>
-                        <td><?= htmlspecialchars($row['status']) ?></td>
+                        <td>
+                            <span class="badge <?= $row['status'] === 'aktif' ? 'bg-success' : 'bg-secondary' ?>">
+                                <?= htmlspecialchars(ucfirst($row['status'])) ?>
+                            </span>
+                        </td>
                         <td><?= htmlspecialchars(strtoupper($row['identification_type']) . ': ' . $row['identification_number']) ?></td>
                         <td class="text-end">
                             <a href="<?= BASE_URL ?>/accounts/<?= urlencode($row['id']) ?>/edit"

@@ -58,9 +58,12 @@ class AccountsModel
     public function findByEmail($email)
     {
         $stmt = $this->db->prepare(
-            'SELECT * FROM accounts WHERE email = ? AND deleted_at IS NULL'
+            'SELECT * FROM accounts
+             WHERE email = ?
+             AND status = ?
+             AND deleted_at IS NULL'
         );
-        $stmt->execute([$email]);
+        $stmt->execute([$email, 'aktif']);
         $row = $stmt->fetch();
 
         return $row === false ? null : $row;
