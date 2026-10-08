@@ -23,6 +23,15 @@ require_once __DIR__ . '/../layout/header.php';
                         <?php endif; ?>
                     </div>
 
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <input type="text" name="description" class="form-control <?= isset($errors['description']) ? 'is-invalid' : '' ?>"
+                               value="<?= htmlspecialchars($values['description'] ?? '') ?>">
+                        <?php if (isset($errors['description'])): ?>
+                            <div class="invalid-feedback"><?= $errors['description'] ?></div>
+                        <?php endif; ?>
+                    </div>
+
                     <div class="d-flex gap-2">
                         <button type="submit" class="btn btn-primary"><?= $isEdit ? 'Update' : 'Save' ?></button>
                         <a href="<?= BASE_URL ?>/accounttype" class="btn btn-secondary">Cancel</a>

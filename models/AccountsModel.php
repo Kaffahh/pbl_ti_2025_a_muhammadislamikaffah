@@ -16,7 +16,8 @@ class AccountsModel
 
     public function getAll()
     {
-        $stmt = $this->db->query("SELECT * FROM accounts ORDER BY name ASC");
+        $stmt = $this->db->query("SELECT a.*, at.name AS account_type_name FROM accounts a INNER JOIN account_type at ON at.id = a.account_type_id WHERE a.deleted_at IS NULL");
+        
         return $stmt->fetchAll();
     }
 

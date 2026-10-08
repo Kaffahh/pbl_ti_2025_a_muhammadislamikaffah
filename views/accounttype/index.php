@@ -23,6 +23,7 @@
                     <tr>
                         <th>ID</th>
                         <th>Name</th>
+                        <th>Description</th>
                         <th class="text-end">Action</th>
                     </tr>
                 </thead>
@@ -31,6 +32,7 @@
                     <tr>
                         <td><span class="badge bg-light text-dark font-monospace fw-normal"><?= substr($row['id'], 0, 8) ?></span></td>
                         <td class="fw-semibold"><?= htmlspecialchars($row['name']) ?></td>
+                        <td class="fw-semibold"><?= htmlspecialchars($row['description']) ?></td>
                         <td class="text-end">
                             <a href="<?= BASE_URL ?>/accounttype/<?= $row['id'] ?>/edit" class="btn btn-outline-warning btn-sm">
                                 <i class="bi bi-pencil"></i>
