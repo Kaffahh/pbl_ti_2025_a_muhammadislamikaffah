@@ -26,9 +26,12 @@ class Accounts
 
     public function index()
     {
-        $accounts = $this->model->getAll();
+        $search = trim($_GET['q'] ?? '');
+        $accounts = $this->model->getAll($search);
+
         $this->load->view('views/accounts/index.php', [
             'accounts' => $accounts,
+            'search' => $search,
         ]);
     }
 

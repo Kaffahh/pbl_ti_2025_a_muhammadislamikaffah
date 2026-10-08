@@ -14,11 +14,40 @@ class AccountsModel
         $this->db = $conn;
     }
 
-    public function getAll()
+    public function getAll($search = null)
     {
-        $stmt = $this->db->query("SELECT a.*, at.name AS account_type_name FROM accounts a INNER JOIN account_type at ON at.id = a.account_type_id WHERE a.deleted_at IS NULL");
-        
+        $sql = "
+            SELECT
+                a.*,
+                at.name AS account_type_name
+            FROM accounts a
+            INNER JOIN account_type at
+                ON at.id = a.account_type_id
+            WHERE a.deleted_at IS NULL
+        ";
+
+        $params = [];
+
+        if ($search !== null && $search !== '') {
+            $sql .= "
+                AND (
+                    a.name LIKE ?
+                    OR a.email LIKE ?
+                    OR a.identification_number LIKE ?
+                )
+            ";
+
+            $keyword = '%' . $search . '%';
+            $params = [$keyword, $keyword, $keyword];
+        }
+
+        $sql .= " ORDER BY a.created_at DESC";
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($params);
+
         return $stmt->fetchAll();
+    }
     }
 
     public function getById($id)
