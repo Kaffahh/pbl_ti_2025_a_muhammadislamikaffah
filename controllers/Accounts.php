@@ -2,13 +2,11 @@
 
 require_once __DIR__ . '/../models/AccountsModel.php';
 require_once __DIR__ . '/../models/AccountTypeModel.php';
-require_once __DIR__ . '/../models/ActionsModel.php';
 
 class Accounts
 {
     private $model;
     private $accountTypeModel;
-    private $actionsModel;
     private $load;
 
     public function __construct()
@@ -16,7 +14,6 @@ class Accounts
         Auth::requireLogin();
         $this->model = new AccountsModel();
         $this->accountTypeModel = new AccountTypeModel();
-        $this->actionsModel = new ActionsModel();
         $this->load = new Loader();
     }
 
@@ -81,11 +78,6 @@ class Accounts
         $search = trim($_GET['q'] ?? '');
         $accounts = $this->model->getAccounts($search);
 
-        $this->actionsModel->createAction([
-            'name' => 'Read Accounts',
-            'description' => $search !== '' ? 'Melihat daftar akun dengan pencarian: ' . $search : 'Melihat seluruh daftar akun',
-        ]);
-
         $this->load->view('views/accounts/index.php', [
             'accounts' => $accounts,
             'search' => $search,
@@ -110,15 +102,8 @@ class Accounts
             return;
         }
 
-        $accountName = trim($_POST['name'] ?? '');
-        $accountEmail = trim($_POST['email'] ?? '');
         $_POST['password'] = password_hash($_POST['password'], PASSWORD_DEFAULT);
-        $newId = $this->model->createAccount($_POST);
-
-        $this->actionsModel->createAction([
-            'name' => 'Create Accounts',
-            'description' => 'Menambahkan akun baru: ' . $accountName . ' (' . $accountEmail . ') [ID: ' . $newId . ']',
-        ]);
+        $this->model->createAccount($_POST);
 
         header('Location: ' . BASE_URL . '/accounts');
         exit;
@@ -163,11 +148,6 @@ class Accounts
 
         $this->model->updateAccount($id, $_POST);
 
-        $this->actionsModel->createAction([
-            'name' => 'Update Accounts',
-            'description' => 'Mengubah akun: ' . trim($_POST['name'] ?? $account['name']) . ' [ID: ' . $id . ']',
-        ]);
-
         header('Location: ' . BASE_URL . '/accounts');
         exit;
     }
@@ -182,11 +162,6 @@ class Accounts
         }
 
         $this->model->deleteAccount($id);
-
-        $this->actionsModel->createAction([
-            'name' => 'Delete Accounts',
-            'description' => 'Menghapus akun: ' . ($account['name'] ?? '') . ' (' . ($account['email'] ?? '') . ') [ID: ' . $id . ']',
-        ]);
 
         header('Location: ' . BASE_URL . '/accounts');
         exit;

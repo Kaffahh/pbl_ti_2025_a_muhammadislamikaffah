@@ -1,19 +1,16 @@
 <?php
 
 require_once __DIR__ . '/../models/AccountTypeModel.php';
-require_once __DIR__ . '/../models/ActionsModel.php';
 
 class AccountType
 {
     private $model;
-    private $actionsModel;
     private $load;
 
     public function __construct()
     {
         Auth::requireLogin();
         $this->model = new AccountTypeModel();
-        $this->actionsModel = new ActionsModel();
         $this->load  = new Loader();
     }
 
@@ -36,11 +33,6 @@ class AccountType
     {
         $search = trim($_GET['q'] ?? '');
         $accounttype = $this->model->getAccountType($search);
-
-        $this->actionsModel->createAction([
-            'name' => 'Read Account Type',
-            'description' => $search !== '' ? 'Melihat daftar tipe akun dengan pencarian: ' . $search : 'Melihat seluruh daftar tipe akun',
-        ]);
 
         $this->load->view('views/accounttype/index.php', [
             'accounttype' => $accounttype,
@@ -70,15 +62,9 @@ class AccountType
             return;
         }
 
-        $typeName = trim($_POST['name']);
-        $newId = $this->model->createAccountType([
-            'name' => $typeName,
+        $this->model->createAccountType([
+            'name' => trim($_POST['name']),
             'description' => trim($_POST['description']),
-        ]);
-
-        $this->actionsModel->createAction([
-            'name' => 'Create Account Type',
-            'description' => 'Menambahkan tipe akun baru: ' . $typeName . ' [ID: ' . $newId . ']',
         ]);
 
         header('Location: ' . BASE_URL . '/account-type');
@@ -130,11 +116,6 @@ class AccountType
             'description' => trim($_POST['description']),
         ]);
 
-        $this->actionsModel->createAction([
-            'name' => 'Update Account Type',
-            'description' => 'Mengubah tipe akun: ' . trim($_POST['name']) . ' [ID: ' . $id . ']',
-        ]);
-
         header('Location: ' . BASE_URL . '/account-type');
         exit;
     }
@@ -149,11 +130,6 @@ class AccountType
         }
 
         $this->model->deleteAccountType($id);
-
-        $this->actionsModel->createAction([
-            'name' => 'Delete Account Type',
-            'description' => 'Menghapus tipe akun: ' . ($accounttype['name'] ?? '') . ' [ID: ' . $id . ']',
-        ]);
 
         header('Location: ' . BASE_URL . '/account-type');
         exit;
