@@ -9,6 +9,7 @@ class Actions
 
     public function __construct()
     {
+        Auth::requireLogin();
         $this->model = new ActionsModel();
         $this->load  = new Loader();
     }
@@ -19,6 +20,10 @@ class Actions
 
         if (empty(trim($data['name'] ?? ''))) {
             $errors['name'] = 'Name is required.';
+        }
+
+        if (empty(trim($data['description'] ?? ''))) {
+            $errors['description'] = 'Description is required.';
         }
 
         return $errors;
@@ -48,6 +53,7 @@ class Actions
             $isEdit = false;
             $this->load->view('views/actions/form.php', [
                 'isEdit' => $isEdit,
+                'actions' => $_POST,
                 'errors' => $errors,
             ]);
             return;
@@ -55,6 +61,7 @@ class Actions
 
         $this->model->create([
             'name' => trim($_POST['name']),
+            'description' => trim($_POST['description']),
         ]);
 
         header('Location: ' . BASE_URL . '/actions');
@@ -95,7 +102,7 @@ class Actions
             $this->load->view('views/actions/form.php', [
                 'isEdit'    => $isEdit,
                 'id'        => $id,
-                'actions' => $actions,
+                'actions' => array_merge($actions, $_POST),
                 'errors'    => $errors,
             ]);
             return;
@@ -103,6 +110,7 @@ class Actions
 
         $this->model->update($id, [
             'name' => trim($_POST['name']),
+            'description' => trim($_POST['description']),
         ]);
 
         header('Location: ' . BASE_URL . '/actions');

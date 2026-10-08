@@ -9,6 +9,7 @@ class AccountType
 
     public function __construct()
     {
+        Auth::requireLogin();
         $this->model = new AccountTypeModel();
         $this->load  = new Loader();
     }

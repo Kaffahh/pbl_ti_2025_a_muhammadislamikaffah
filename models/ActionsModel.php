@@ -16,13 +16,20 @@ class ActionsModel
 
     public function getAll()
     {
-        $stmt = $this->db->query("SELECT * FROM actions ORDER BY name ASC");
+        $stmt = $this->db->query(
+            "SELECT * FROM actions
+             WHERE deleted_at IS NULL
+             ORDER BY name ASC"
+        );
         return $stmt->fetchAll();
     }
 
     public function getById($id)
     {
-        $stmt = $this->db->prepare("SELECT * FROM actions WHERE id = ?");
+        $stmt = $this->db->prepare(
+            "SELECT * FROM actions
+             WHERE id = ? AND deleted_at IS NULL"
+        );
         $stmt->execute([$id]);
         $row = $stmt->fetch();
         return $row === false ? null : $row;
@@ -32,21 +39,33 @@ class ActionsModel
     {
         $id = Uuid::uuid4()->toString();
 
-        $stmt = $this->db->prepare("INSERT INTO actions (id, name) VALUES (?, ?)");
-        $stmt->execute([$id, $data['name']]);
+        $stmt = $this->db->prepare(
+            "INSERT INTO actions
+             (id, name, description, created_at)
+             VALUES (?, ?, ?, NOW())"
+        );
+        $stmt->execute([$id, $data['name'], $data['description']]);
 
         return $id;
     }
 
     public function update($id, $data)
     {
-        $stmt = $this->db->prepare("UPDATE actions SET name = ? WHERE id = ?");
-        return $stmt->execute([$data['name'], $id]);
+        $stmt = $this->db->prepare(
+            "UPDATE actions
+             SET name = ?, description = ?, updated_at = NOW()
+             WHERE id = ? AND deleted_at IS NULL"
+        );
+        return $stmt->execute([$data['name'], $data['description'], $id]);
     }
 
     public function delete($id)
     {
-        $stmt = $this->db->prepare("DELETE FROM actions WHERE id = ?");
+        $stmt = $this->db->prepare(
+            "UPDATE actions
+             SET deleted_at = NOW()
+             WHERE id = ? AND deleted_at IS NULL"
+        );
         return $stmt->execute([$id]);
     }
 }
