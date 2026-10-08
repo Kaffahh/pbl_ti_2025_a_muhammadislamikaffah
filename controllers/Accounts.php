@@ -1,64 +1,107 @@
 <?php
 
 require_once __DIR__ . '/../models/AccountsModel.php';
+require_once __DIR__ . '/../models/AccountTypeModel.php';
 
 class Accounts
 {
     private $model;
+    private $accountTypeModel;
     private $load;
 
     public function __construct()
     {
+        Auth::requireLogin();
         $this->model = new AccountsModel();
-        $this->load  = new Loader();
+        $this->accountTypeModel = new AccountTypeModel();
+        $this->load = new Loader();
     }
 
-    private function validate($data)
+    private function validate($data, $isEdit = false, $id = null)
     {
         $errors = [];
 
-        if (empty(trim($data['name'] ?? ''))) {
+        if (trim($data['name'] ?? '') === '') {
             $errors['name'] = 'Name is required.';
+        }
+
+        $email = trim($data['email'] ?? '');
+        if ($email === '') {
+            $errors['email'] = 'Email is required.';
+        } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $errors['email'] = 'Email format is invalid.';
+        } elseif ($this->model->emailExists($email, $id)) {
+            $errors['email'] = 'Email is already registered.';
+        }
+
+        if (!$isEdit && trim($data['password'] ?? '') === '') {
+            $errors['password'] = 'Password is required.';
+        } elseif (trim($data['password'] ?? '') !== ''
+            && strlen($data['password']) < 6) {
+            $errors['password'] = 'Password must be at least 6 characters.';
+        }
+
+        if (trim($data['account_type_id'] ?? '') === '') {
+            $errors['account_type_id'] = 'Account type is required.';
+        } elseif ($this->accountTypeModel->getById($data['account_type_id']) === null) {
+            $errors['account_type_id'] = 'Selected account type is invalid.';
+        }
+
+        if (trim($data['status'] ?? '') === '') {
+            $errors['status'] = 'Status is required.';
+        }
+
+        if (trim($data['identification_number'] ?? '') === '') {
+            $errors['identification_number'] = 'Identification number is required.';
+        }
+
+        if (!in_array($data['identification_type'] ?? '', ['nim', 'nip'], true)) {
+            $errors['identification_type'] = 'Identification type is invalid.';
         }
 
         return $errors;
     }
 
+    private function formData($account = null, $errors = [])
+    {
+        return [
+            'isEdit' => $account !== null,
+            'id' => $account['id'] ?? null,
+            'account' => $account,
+            'accountTypes' => $this->accountTypeModel->getAll(),
+            'errors' => $errors,
+        ];
+    }
+
     public function index()
     {
         $search = trim($_GET['q'] ?? '');
-        $accounts = $this->model->getAll($search);
-
         $this->load->view('views/accounts/index.php', [
-            'accounts' => $accounts,
+            'accounts' => $this->model->getAll($search),
             'search' => $search,
         ]);
     }
 
     public function create()
     {
-        $isEdit = false;
-        $this->load->view('views/accounts/form.php', [
-            'isEdit' => $isEdit,
-        ]);
+        $this->load->view('views/accounts/form.php', $this->formData());
     }
 
     public function store()
     {
         $errors = $this->validate($_POST);
-
         if (!empty($errors)) {
-            $isEdit = false;
             $this->load->view('views/accounts/form.php', [
-                'isEdit' => $isEdit,
+                'isEdit' => false,
+                'account' => $_POST,
+                'accountTypes' => $this->accountTypeModel->getAll(),
                 'errors' => $errors,
             ]);
             return;
         }
 
-        $this->model->create([
-            'name' => trim($_POST['name']),
-        ]);
+        $_POST['password'] = password_hash($_POST['password'], PASSWORD_DEFAULT);
+        $this->model->create($_POST);
 
         header('Location: ' . BASE_URL . '/accounts');
         exit;
@@ -66,48 +109,42 @@ class Accounts
 
     public function edit($id)
     {
-        $accounts = $this->model->getById($id);
-
-        if ($accounts === null) {
+        $account = $this->model->getById($id);
+        if ($account === null) {
             http_response_code(404);
-            echo '404 - Accounts not found';
+            echo '404 - Account not found';
             return;
         }
 
-        $isEdit = true;
-        $this->load->view('views/accounts/form.php', [
-            'isEdit'    => $isEdit,
-            'id'        => $id,
-            'accounts' => $accounts,
-        ]);
+        $this->load->view('views/accounts/form.php', $this->formData($account));
     }
 
     public function update($id)
     {
-        if ($this->model->getById($id) === null) {
+        $account = $this->model->getById($id);
+        if ($account === null) {
             http_response_code(404);
-            echo '404 - Accounts not found';
+            echo '404 - Account not found';
             return;
         }
 
-        $errors = $this->validate($_POST);
-
+        $errors = $this->validate($_POST, true, $id);
         if (!empty($errors)) {
-            $isEdit = true;
-            $accounts = $this->model->getById($id);
             $this->load->view('views/accounts/form.php', [
-                'isEdit'    => $isEdit,
-                'id'        => $id,
-                'accounts' => $accounts,
-                'errors'    => $errors,
+                'isEdit' => true,
+                'id' => $id,
+                'account' => array_merge($account, $_POST),
+                'accountTypes' => $this->accountTypeModel->getAll(),
+                'errors' => $errors,
             ]);
             return;
         }
 
-        $this->model->update($id, [
-            'name' => trim($_POST['name']),
-        ]);
+        if (!empty($_POST['password'])) {
+            $_POST['password'] = password_hash($_POST['password'], PASSWORD_DEFAULT);
+        }
 
+        $this->model->update($id, $_POST);
         header('Location: ' . BASE_URL . '/accounts');
         exit;
     }
@@ -116,7 +153,7 @@ class Accounts
     {
         if ($this->model->getById($id) === null) {
             http_response_code(404);
-            echo '404 - Accounts not found';
+            echo '404 - Account not found';
             return;
         }
 

@@ -18,6 +18,9 @@ if (PHP_SAPI === 'cli-server') {
 require_once __DIR__ . '/vendor/autoload.php';
 require_once __DIR__ . '/config/database.php';
 require_once __DIR__ . '/core/Loader.php';
+require_once __DIR__ . '/core/Auth.php';
+
+session_start();
 
 // parser URL, this line will divide the uri into several parts
 $uri      = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
@@ -32,7 +35,7 @@ define('BASE_URL', $base === '' ? '' : '/' . $base);
 // path will contain /account/id-account-1/edit
 // segment will contain  [0] -> account, [1] -> id-account-1, [2] -> edit,
 
-$noIdActions = ['create', 'store'];
+$noIdActions = ['create', 'store', 'authenticate', 'logout'];
 $page = $segments[0] ?: ''; // set default controller u guys right here, so if ure accessing the root or base url, will calls that controller.
 
 if (!isset($segments[1]) || $segments[1] === '') {
@@ -49,7 +52,7 @@ if (!isset($segments[1]) || $segments[1] === '') {
 $method = $_SERVER['REQUEST_METHOD'];
 
 // actions that must come from a form submission (POST), not a plain link/URL (GET)
-$postOnlyActions = ['store', 'update', 'delete'];
+$postOnlyActions = ['store', 'update', 'delete', 'authenticate', 'logout'];
 $expectsPost     = in_array($action, $postOnlyActions, true);
 
 $controllerName = str_replace('-', '', ucwords($page, '-'));

@@ -30,9 +30,9 @@ class AccountType
 
     public function index()
     {
-        $account_type = $this->model->getAll();
+        $accounttype = $this->model->getAll();
         $this->load->view('views/accounttype/index.php', [
-            'account_type' => $account_type,
+            'accounttype' => $accounttype,
         ]);
     }
 
@@ -62,17 +62,17 @@ class AccountType
             'description' => trim($_POST['description']),
         ]);
 
-        header('Location: ' . BASE_URL . '/account_type');
+        header('Location: ' . BASE_URL . '/accounttype');
         exit;
     }
 
     public function edit($id)
     {
-        $account_type = $this->model->getById($id);
+        $accounttype = $this->model->getById($id);
 
-        if ($account_type === null) {
+        if ($accounttype === null) {
             http_response_code(404);
-            echo '404 - account_type not found';
+            echo '404 - accounttype not found';
             return;
         }
 
@@ -80,7 +80,7 @@ class AccountType
         $this->load->view('views/accounttype/form.php', [
             'isEdit'    => $isEdit,
             'id'        => $id,
-            'account_type' => $account_type,
+            'accounttype' => $accounttype,
         ]);
     }
 
@@ -88,7 +88,7 @@ class AccountType
     {
         if ($this->model->getById($id) === null) {
             http_response_code(404);
-            echo '404 - account_type not found';
+            echo '404 - accounttype not found';
             return;
         }
 
@@ -96,11 +96,11 @@ class AccountType
 
         if (!empty($errors)) {
             $isEdit = true;
-            $account_type = $this->model->getById($id);
+            $accounttype = $this->model->getById($id);
             $this->load->view('views/accounttype/form.php', [
                 'isEdit'    => $isEdit,
                 'id'        => $id,
-                'account_type' => $account_type,
+                'accounttype' => $accounttype,
                 'errors'    => $errors,
             ]);
             return;
@@ -111,7 +111,7 @@ class AccountType
             'description' => trim($_POST['description']),
         ]);
 
-        header('Location: ' . BASE_URL . '/account_type');
+        header('Location: ' . BASE_URL . '/accounttype');
         exit;
     }
 
@@ -119,12 +119,12 @@ class AccountType
     {
         if ($this->model->getById($id) === null) {
             http_response_code(404);
-            echo '404 - account_type not found';
+            echo '404 - accounttype not found';
             return;
         }
 
         $this->model->delete($id);
-        header('Location: ' . BASE_URL . '/account_type');
+        header('Location: ' . BASE_URL . '/accounttype');
         exit;
     }
 }

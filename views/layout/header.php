@@ -40,5 +40,15 @@
         </div>
 
         <div class="main">
-            <header class="topbar"></header>
+            <header class="topbar">
+                <?php $user = Auth::user(); ?>
+                <?php if ($user): ?>
+                    <span class="text-muted">Hi, <?= htmlspecialchars($user['name']) ?></span>
+                    <form action="<?= BASE_URL ?>/login/logout" method="POST">
+                        <button type="submit" class="btn btn-outline-secondary btn-sm">
+                            <i class="bi bi-box-arrow-right"></i> Logout
+                        </button>
+                    </form>
+                <?php endif; ?>
+            </header>
             <div class="content">
