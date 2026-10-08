@@ -47,8 +47,8 @@ class Accounts
             $errors['account_type_id'] = 'Selected account type is invalid.';
         }
 
-        if (trim($data['status'] ?? '') === '') {
-            $errors['status'] = 'Status is required.';
+        if (!in_array($data['status'] ?? '', ['aktif', 'nonaktif'], true)) {
+            $errors['status'] = 'Status must be active or inactive.';
         }
 
         if (trim($data['identification_number'] ?? '') === '') {

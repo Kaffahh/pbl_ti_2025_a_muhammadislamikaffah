@@ -58,9 +58,16 @@ require_once __DIR__ . '/../layout/header.php';
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Status</label>
-                            <input type="text" name="status"
-                                   class="form-control <?= isset($errors['status']) ? 'is-invalid' : '' ?>"
-                                   value="<?= htmlspecialchars($values['status'] ?? 'active') ?>">
+                            <select name="status"
+                                    class="form-select <?= isset($errors['status']) ? 'is-invalid' : '' ?>">
+                                <option value="">-- Pilih status --</option>
+                                <option value="aktif" <?= ($values['status'] ?? 'aktif') === 'aktif' ? 'selected' : '' ?>>
+                                    Aktif
+                                </option>
+                                <option value="nonaktif" <?= ($values['status'] ?? '') === 'nonaktif' ? 'selected' : '' ?>>
+                                    Nonaktif
+                                </option>
+                            </select>
                             <?php if (isset($errors['status'])): ?>
                                 <div class="invalid-feedback"><?= htmlspecialchars($errors['status']) ?></div>
                             <?php endif; ?>

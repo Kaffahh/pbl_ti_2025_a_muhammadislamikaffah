@@ -45,7 +45,7 @@
                 <?php if ($user): ?>
                     <span class="text-muted">Hi, <?= htmlspecialchars($user['name']) ?></span>
                     <form action="<?= BASE_URL ?>/login/logout" method="POST">
-                        <button type="submit" class="btn btn-outline-secondary btn-sm">
+                        <button type="submit" class="btn btn-danger btn-md">
                             <i class="bi bi-box-arrow-right"></i> Logout
                         </button>
                     </form>
