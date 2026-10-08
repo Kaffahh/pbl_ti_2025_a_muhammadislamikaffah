@@ -31,9 +31,11 @@ class Actions
 
     public function index()
     {
-        $actions = $this->model->getAll();
+        $search = trim($_GET['q'] ?? '');
+        $actions = $this->model->getActions($search);
         $this->load->view('views/actions/index.php', [
             'actions' => $actions,
+            'search' => $search,
         ]);
     }
 
@@ -59,7 +61,7 @@ class Actions
             return;
         }
 
-        $this->model->create([
+        $this->model->createAction([
             'name' => trim($_POST['name']),
             'description' => trim($_POST['description']),
         ]);
@@ -70,7 +72,7 @@ class Actions
 
     public function edit($id)
     {
-        $actions = $this->model->getById($id);
+        $actions = $this->model->getActionById($id);
 
         if ($actions === null) {
             http_response_code(404);
@@ -88,7 +90,7 @@ class Actions
 
     public function update($id)
     {
-        if ($this->model->getById($id) === null) {
+        if ($this->model->getActionById($id) === null) {
             http_response_code(404);
             echo '404 - Actions not found';
             return;
@@ -98,7 +100,7 @@ class Actions
 
         if (!empty($errors)) {
             $isEdit = true;
-            $actions = $this->model->getById($id);
+            $actions = $this->model->getActionById($id);
             $this->load->view('views/actions/form.php', [
                 'isEdit'    => $isEdit,
                 'id'        => $id,
@@ -108,7 +110,7 @@ class Actions
             return;
         }
 
-        $this->model->update($id, [
+        $this->model->updateAction($id, [
             'name' => trim($_POST['name']),
             'description' => trim($_POST['description']),
         ]);
@@ -119,13 +121,13 @@ class Actions
 
     public function delete($id)
     {
-        if ($this->model->getById($id) === null) {
+        if ($this->model->getActionById($id) === null) {
             http_response_code(404);
             echo '404 - Actions not found';
             return;
         }
 
-        $this->model->delete($id);
+        $this->model->deleteAction($id);
         header('Location: ' . BASE_URL . '/actions');
         exit;
     }

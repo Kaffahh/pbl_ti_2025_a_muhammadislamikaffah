@@ -14,7 +14,7 @@ class AccountsModel
         $this->db = $conn;
     }
 
-    public function getAll($search = '')
+    public function getAccounts($search = '')
     {
         $sql = "
             SELECT a.*, at.name AS account_type_name
@@ -44,7 +44,7 @@ class AccountsModel
         return $stmt->fetchAll();
     }
 
-    public function getById($id)
+    public function getAccountById($id)
     {
         $stmt = $this->db->prepare(
             'SELECT * FROM accounts WHERE id = ? AND deleted_at IS NULL'
@@ -85,7 +85,7 @@ class AccountsModel
         return $stmt->fetch() !== false;
     }
 
-    public function create($data)
+    public function createAccount($data)
     {
         $id = Uuid::uuid4()->toString();
 
@@ -109,7 +109,7 @@ class AccountsModel
         return $id;
     }
 
-    public function update($id, $data)
+    public function updateAccount($id, $data)
     {
         $sql = "
             UPDATE accounts
@@ -138,7 +138,7 @@ class AccountsModel
         return $stmt->execute($params);
     }
 
-    public function delete($id)
+    public function deleteAccount($id)
     {
         $stmt = $this->db->prepare(
             'UPDATE accounts SET deleted_at = NOW()

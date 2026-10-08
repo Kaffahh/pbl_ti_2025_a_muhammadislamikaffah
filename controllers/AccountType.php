@@ -1,16 +1,19 @@
 <?php
 
 require_once __DIR__ . '/../models/AccountTypeModel.php';
+require_once __DIR__ . '/../models/ActionsModel.php';
 
 class AccountType
 {
     private $model;
+    private $actionsModel;
     private $load;
 
     public function __construct()
     {
         Auth::requireLogin();
         $this->model = new AccountTypeModel();
+        $this->actionsModel = new ActionsModel();
         $this->load  = new Loader();
     }
 
@@ -31,9 +34,17 @@ class AccountType
 
     public function index()
     {
-        $accounttype = $this->model->getAll();
+        $search = trim($_GET['q'] ?? '');
+        $accounttype = $this->model->getAccountType($search);
+
+        $this->actionsModel->createAction([
+            'name' => 'Read Account Type',
+            'description' => $search !== '' ? 'Melihat daftar tipe akun dengan pencarian: ' . $search : 'Melihat seluruh daftar tipe akun',
+        ]);
+
         $this->load->view('views/accounttype/index.php', [
             'accounttype' => $accounttype,
+            'search' => $search,
         ]);
     }
 
@@ -59,18 +70,24 @@ class AccountType
             return;
         }
 
-        $this->model->create([
-            'name' => trim($_POST['name']),
+        $typeName = trim($_POST['name']);
+        $newId = $this->model->createAccountType([
+            'name' => $typeName,
             'description' => trim($_POST['description']),
         ]);
 
-        header('Location: ' . BASE_URL . '/accounttype');
+        $this->actionsModel->createAction([
+            'name' => 'Create Account Type',
+            'description' => 'Menambahkan tipe akun baru: ' . $typeName . ' [ID: ' . $newId . ']',
+        ]);
+
+        header('Location: ' . BASE_URL . '/account-type');
         exit;
     }
 
     public function edit($id)
     {
-        $accounttype = $this->model->getById($id);
+        $accounttype = $this->model->getAccountTypeById($id);
 
         if ($accounttype === null) {
             http_response_code(404);
@@ -88,7 +105,8 @@ class AccountType
 
     public function update($id)
     {
-        if ($this->model->getById($id) === null) {
+        $accounttype = $this->model->getAccountTypeById($id);
+        if ($accounttype === null) {
             http_response_code(404);
             echo '404 - accounttype not found';
             return;
@@ -98,7 +116,6 @@ class AccountType
 
         if (!empty($errors)) {
             $isEdit = true;
-            $accounttype = $this->model->getById($id);
             $this->load->view('views/accounttype/form.php', [
                 'isEdit'    => $isEdit,
                 'id'        => $id,
@@ -108,25 +125,37 @@ class AccountType
             return;
         }
 
-        $this->model->update($id, [
+        $this->model->updateAccountType($id, [
             'name' => trim($_POST['name']),
             'description' => trim($_POST['description']),
         ]);
 
-        header('Location: ' . BASE_URL . '/accounttype');
+        $this->actionsModel->createAction([
+            'name' => 'Update Account Type',
+            'description' => 'Mengubah tipe akun: ' . trim($_POST['name']) . ' [ID: ' . $id . ']',
+        ]);
+
+        header('Location: ' . BASE_URL . '/account-type');
         exit;
     }
 
     public function delete($id)
     {
-        if ($this->model->getById($id) === null) {
+        $accounttype = $this->model->getAccountTypeById($id);
+        if ($accounttype === null) {
             http_response_code(404);
             echo '404 - accounttype not found';
             return;
         }
 
-        $this->model->delete($id);
-        header('Location: ' . BASE_URL . '/accounttype');
+        $this->model->deleteAccountType($id);
+
+        $this->actionsModel->createAction([
+            'name' => 'Delete Account Type',
+            'description' => 'Menghapus tipe akun: ' . ($accounttype['name'] ?? '') . ' [ID: ' . $id . ']',
+        ]);
+
+        header('Location: ' . BASE_URL . '/account-type');
         exit;
     }
 }

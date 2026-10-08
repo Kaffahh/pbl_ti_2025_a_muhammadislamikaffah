@@ -2,11 +2,13 @@
 
 require_once __DIR__ . '/../models/AccountsModel.php';
 require_once __DIR__ . '/../models/AccountTypeModel.php';
+require_once __DIR__ . '/../models/ActionsModel.php';
 
 class Accounts
 {
     private $model;
     private $accountTypeModel;
+    private $actionsModel;
     private $load;
 
     public function __construct()
@@ -14,6 +16,7 @@ class Accounts
         Auth::requireLogin();
         $this->model = new AccountsModel();
         $this->accountTypeModel = new AccountTypeModel();
+        $this->actionsModel = new ActionsModel();
         $this->load = new Loader();
     }
 
@@ -43,7 +46,7 @@ class Accounts
 
         if (trim($data['account_type_id'] ?? '') === '') {
             $errors['account_type_id'] = 'Account type is required.';
-        } elseif ($this->accountTypeModel->getById($data['account_type_id']) === null) {
+        } elseif ($this->accountTypeModel->getAccountTypeById($data['account_type_id']) === null) {
             $errors['account_type_id'] = 'Selected account type is invalid.';
         }
 
@@ -68,7 +71,7 @@ class Accounts
             'isEdit' => $account !== null,
             'id' => $account['id'] ?? null,
             'account' => $account,
-            'accountTypes' => $this->accountTypeModel->getAll(),
+            'accountTypes' => $this->accountTypeModel->getAccountType(),
             'errors' => $errors,
         ];
     }
@@ -76,8 +79,15 @@ class Accounts
     public function index()
     {
         $search = trim($_GET['q'] ?? '');
+        $accounts = $this->model->getAccounts($search);
+
+        $this->actionsModel->createAction([
+            'name' => 'Read Accounts',
+            'description' => $search !== '' ? 'Melihat daftar akun dengan pencarian: ' . $search : 'Melihat seluruh daftar akun',
+        ]);
+
         $this->load->view('views/accounts/index.php', [
-            'accounts' => $this->model->getAll($search),
+            'accounts' => $accounts,
             'search' => $search,
         ]);
     }
@@ -94,14 +104,21 @@ class Accounts
             $this->load->view('views/accounts/form.php', [
                 'isEdit' => false,
                 'account' => $_POST,
-                'accountTypes' => $this->accountTypeModel->getAll(),
+                'accountTypes' => $this->accountTypeModel->getAccountType(),
                 'errors' => $errors,
             ]);
             return;
         }
 
+        $accountName = trim($_POST['name'] ?? '');
+        $accountEmail = trim($_POST['email'] ?? '');
         $_POST['password'] = password_hash($_POST['password'], PASSWORD_DEFAULT);
-        $this->model->create($_POST);
+        $newId = $this->model->createAccount($_POST);
+
+        $this->actionsModel->createAction([
+            'name' => 'Create Accounts',
+            'description' => 'Menambahkan akun baru: ' . $accountName . ' (' . $accountEmail . ') [ID: ' . $newId . ']',
+        ]);
 
         header('Location: ' . BASE_URL . '/accounts');
         exit;
@@ -109,7 +126,7 @@ class Accounts
 
     public function edit($id)
     {
-        $account = $this->model->getById($id);
+        $account = $this->model->getAccountById($id);
         if ($account === null) {
             http_response_code(404);
             echo '404 - Account not found';
@@ -121,7 +138,7 @@ class Accounts
 
     public function update($id)
     {
-        $account = $this->model->getById($id);
+        $account = $this->model->getAccountById($id);
         if ($account === null) {
             http_response_code(404);
             echo '404 - Account not found';
@@ -134,7 +151,7 @@ class Accounts
                 'isEdit' => true,
                 'id' => $id,
                 'account' => array_merge($account, $_POST),
-                'accountTypes' => $this->accountTypeModel->getAll(),
+                'accountTypes' => $this->accountTypeModel->getAccountType(),
                 'errors' => $errors,
             ]);
             return;
@@ -144,20 +161,33 @@ class Accounts
             $_POST['password'] = password_hash($_POST['password'], PASSWORD_DEFAULT);
         }
 
-        $this->model->update($id, $_POST);
+        $this->model->updateAccount($id, $_POST);
+
+        $this->actionsModel->createAction([
+            'name' => 'Update Accounts',
+            'description' => 'Mengubah akun: ' . trim($_POST['name'] ?? $account['name']) . ' [ID: ' . $id . ']',
+        ]);
+
         header('Location: ' . BASE_URL . '/accounts');
         exit;
     }
 
     public function delete($id)
     {
-        if ($this->model->getById($id) === null) {
+        $account = $this->model->getAccountById($id);
+        if ($account === null) {
             http_response_code(404);
             echo '404 - Account not found';
             return;
         }
 
-        $this->model->delete($id);
+        $this->model->deleteAccount($id);
+
+        $this->actionsModel->createAction([
+            'name' => 'Delete Accounts',
+            'description' => 'Menghapus akun: ' . ($account['name'] ?? '') . ' (' . ($account['email'] ?? '') . ') [ID: ' . $id . ']',
+        ]);
+
         header('Location: ' . BASE_URL . '/accounts');
         exit;
     }

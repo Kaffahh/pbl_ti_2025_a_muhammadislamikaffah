@@ -12,7 +12,7 @@ require_once __DIR__ . '/../layout/header.php';
             </div>
 
             <div class="card-body">
-                <form action="<?= $isEdit ? BASE_URL . '/accounttype/' . $id . '/update' : BASE_URL . '/accounttype/store' ?>" method="POST">
+                <form action="<?= $isEdit ? BASE_URL . '/account-type/' . $id . '/update' : BASE_URL . '/account-type/store' ?>" method="POST">
 
                     <div class="mb-3">
                         <label class="form-label">Name</label>
@@ -34,7 +34,7 @@ require_once __DIR__ . '/../layout/header.php';
 
                     <div class="d-flex gap-2">
                         <button type="submit" class="btn btn-primary"><?= $isEdit ? 'Update' : 'Save' ?></button>
-                        <a href="<?= BASE_URL ?>/accounttype" class="btn btn-secondary">Cancel</a>
+                        <a href="<?= BASE_URL ?>/account-type" class="btn btn-secondary">Cancel</a>
                     </div>
 
                 </form>

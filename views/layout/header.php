@@ -15,24 +15,24 @@
 
         <div class="sidebar">
             <a href="<?= BASE_URL ?>/" class="sidebar-brand">
-                <span class="brand-mark"><i class="bi bi-box-seam"></i></span>
+                <span class="brand-mark"><i class="bi bi-shield-lock"></i></span>
                 Logo klean
             </a>
 
             <ul class="sidebar-nav">
                 <li>
                     <a href="<?= BASE_URL ?>/accounts" class="nav-link <?= $page === 'accounts' ? 'active' : '' ?>">
-                        <i class="bi bi-grid"></i> Accounts
+                        <i class="bi bi-people"></i> Accounts
                     </a>
                 </li>
                 <li>
-                    <a href="<?= BASE_URL ?>/accounttype" class="nav-link <?= $page === 'accounttype' ? 'active' : '' ?>">
-                        <i class="bi bi-grid"></i> Account Type
+                    <a href="<?= BASE_URL ?>/account-type" class="nav-link <?= $page === 'account-type' ? 'active' : '' ?>">
+                        <i class="bi bi-person-badge"></i> Account Type
                     </a>
                 </li>
                 <li>
                     <a href="<?= BASE_URL ?>/actions" class="nav-link <?= $page === 'actions' ? 'active' : '' ?>">
-                        <i class="bi bi-grid"></i> Actions
+                        <i class="bi bi-lightning"></i> Actions
                     </a>
                 </li>
             </ul>
@@ -43,7 +43,10 @@
             <header class="topbar">
                 <?php $user = Auth::user(); ?>
                 <?php if ($user): ?>
-                    <span class="text-muted">Hi, <?= htmlspecialchars($user['name']) ?></span>
+                    <div class="d-flex flex-column gap-0">
+                        <span class="text-muted">Hi, <?= htmlspecialchars($user['name']) ?></span>
+                        <span class="text-muted small"><?= htmlspecialchars($user['email']) ?></span>
+                    </div>
                     <form action="<?= BASE_URL ?>/login/logout" method="POST">
                         <button type="submit" class="btn btn-danger btn-md">
                             <i class="bi bi-box-arrow-right"></i> Logout

@@ -14,17 +14,25 @@ class ActionsModel
         $this->db = $conn;
     }
 
-    public function getAll()
+    public function getActions($search = '')
     {
-        $stmt = $this->db->query(
-            "SELECT * FROM actions
-             WHERE deleted_at IS NULL
-             ORDER BY name ASC"
-        );
+        $sql = "SELECT * FROM actions WHERE deleted_at IS NULL";
+        $params = [];
+
+        if ($search !== '') {
+            $sql .= " AND (name LIKE ? OR description LIKE ?)";
+            $keyword = '%' . $search . '%';
+            $params = [$keyword, $keyword];
+        }
+
+        $sql .= " ORDER BY created_at DESC";
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($params);
         return $stmt->fetchAll();
     }
 
-    public function getById($id)
+    public function getActionById($id)
     {
         $stmt = $this->db->prepare(
             "SELECT * FROM actions
@@ -35,7 +43,7 @@ class ActionsModel
         return $row === false ? null : $row;
     }
 
-    public function create($data)
+    public function createAction($data)
     {
         $id = Uuid::uuid4()->toString();
 
@@ -49,7 +57,7 @@ class ActionsModel
         return $id;
     }
 
-    public function update($id, $data)
+    public function updateAction($id, $data)
     {
         $stmt = $this->db->prepare(
             "UPDATE actions
@@ -59,7 +67,7 @@ class ActionsModel
         return $stmt->execute([$data['name'], $data['description'], $id]);
     }
 
-    public function delete($id)
+    public function deleteAction($id)
     {
         $stmt = $this->db->prepare(
             "UPDATE actions

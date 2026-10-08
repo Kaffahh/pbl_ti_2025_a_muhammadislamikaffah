@@ -14,13 +14,25 @@ class AccountTypeModel
         $this->db = $conn;
     }
 
-    public function getAll()
+    public function getAccountType($search = '')
     {
-        $stmt = $this->db->query("SELECT * FROM account_type WHERE deleted_at IS NULL ORDER BY name ASC");
+        $sql = "SELECT * FROM account_type WHERE deleted_at IS NULL";
+        $params = [];
+
+        if ($search !== '') {
+            $sql .= " AND (name LIKE ? OR description LIKE ?)";
+            $keyword = '%' . $search . '%';
+            $params = [$keyword, $keyword];
+        }
+
+        $sql .= " ORDER BY created_at DESC";
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($params);
         return $stmt->fetchAll();
     }
 
-    public function getById($id)
+    public function getAccountTypeById($id)
     {
         $stmt = $this->db->prepare("SELECT * FROM account_type WHERE id = ? AND deleted_at IS NULL");
         $stmt->execute([$id]);
@@ -28,7 +40,7 @@ class AccountTypeModel
         return $row === false ? null : $row;
     }
 
-    public function create($data)
+    public function createAccountType($data)
     {
         $id = Uuid::uuid4()->toString();
 
@@ -38,13 +50,13 @@ class AccountTypeModel
         return $id;
     }
 
-    public function update($id, $data)
+    public function updateAccountType($id, $data)
     {
         $stmt = $this->db->prepare("UPDATE account_type SET name = ?, description = ?, updated_at = NOW() WHERE id = ?");
         return $stmt->execute([$data['name'], $data['description'], $id]);
     }
 
-    public function delete($id)
+    public function deleteAccountType($id)
     {
         $stmt = $this->db->prepare("UPDATE account_type SET deleted_at = NOW() WHERE id = ? AND deleted_at IS NULL");
         return $stmt->execute([$id]);
