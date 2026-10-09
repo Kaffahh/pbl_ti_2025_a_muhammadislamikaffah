@@ -16,7 +16,7 @@
         <div class="sidebar">
             <a href="<?= BASE_URL ?>/" class="sidebar-brand">
                 <span class="brand-mark"><i class="bi bi-shield-lock"></i></span>
-                Logo klean
+                ItulahPokokNa
             </a>
 
             <ul class="sidebar-nav">
@@ -48,7 +48,7 @@
                         <span class="text-muted small"><?= htmlspecialchars($user['email']) ?></span>
                     </div>
                     <form action="<?= BASE_URL ?>/login/logout" method="POST">
-                        <button type="submit" class="btn btn-danger btn-md">
+                        <button type="submit" class="btn btn-outline-secondary btn-md">
                             <i class="bi bi-box-arrow-right"></i> Logout
                         </button>
                     </form>
