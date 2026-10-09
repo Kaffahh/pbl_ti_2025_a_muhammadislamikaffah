@@ -60,10 +60,9 @@ class AccountsModel
         $stmt = $this->db->prepare(
             'SELECT * FROM accounts
              WHERE email = ?
-             AND status = ?
              AND deleted_at IS NULL'
         );
-        $stmt->execute([$email, 'aktif']);
+        $stmt->execute([$email]);
         $row = $stmt->fetch();
 
         return $row === false ? null : $row;

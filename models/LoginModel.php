@@ -16,9 +16,22 @@ class LoginModel
         $account = $this->accounts->findByEmail($email);
 
         if ($account === null || !password_verify($password, $account['password'])) {
-            return null;
+            return [
+                'account' => null,
+                'error' => 'Email atau password salah.',
+            ];
         }
 
-        return $account;
+        if ($account['status'] !== 'aktif') {
+            return [
+                'account' => null,
+                'error' => 'Akun kamu sedang nonaktif. Hubungi administrator untuk mengaktifkannya kembali.',
+            ];
+        }
+
+        return [
+            'account' => $account,
+            'error' => null,
+        ];
     }
 }

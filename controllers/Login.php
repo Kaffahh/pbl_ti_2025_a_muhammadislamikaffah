@@ -37,13 +37,13 @@ class Login
         }
 
         if (empty($errors)) {
-            $account = $this->model->authenticate($email, $password);
-            if ($account !== null) {
-                Auth::login($account);
+            $result = $this->model->authenticate($email, $password);
+            if ($result['account'] !== null) {
+                Auth::login($result['account']);
                 header('Location: ' . BASE_URL . '/accounts');
                 exit;
             }
-            $errors['login'] = 'Email or password is incorrect.';
+            $errors['login'] = $result['error'];
         }
 
         $this->load->view('views/login/index.php', [
