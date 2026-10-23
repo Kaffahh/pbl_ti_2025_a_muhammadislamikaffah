@@ -14,7 +14,24 @@ class AccountTypeModel
         $this->db = $conn;
     }
 
-    public function getAccountType($search = '')
+    public function countAccountType($search = '')
+    {
+        $sql = "SELECT COUNT(*) FROM account_type WHERE deleted_at IS NULL";
+        $params = [];
+
+        if ($search !== '') {
+            $sql .= " AND (name LIKE ? OR description LIKE ?)";
+            $keyword = '%' . $search . '%';
+            $params = [$keyword, $keyword];
+        }
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($params);
+
+        return (int) $stmt->fetchColumn();
+    }
+
+    public function getAccountType($search = '', $limit = 10, $offset = 0)
     {
         $sql = "SELECT * FROM account_type WHERE deleted_at IS NULL";
         $params = [];
@@ -25,7 +42,9 @@ class AccountTypeModel
             $params = [$keyword, $keyword];
         }
 
-        $sql .= " ORDER BY created_at DESC";
+        $limit = max(1, (int) $limit);
+        $offset = max(0, (int) $offset);
+        $sql .= " ORDER BY created_at DESC LIMIT {$limit} OFFSET {$offset}";
 
         $stmt = $this->db->prepare($sql);
         $stmt->execute($params);
