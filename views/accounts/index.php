@@ -67,6 +67,36 @@
             </table>
         </div>
     </div>
+
+    <nav aria-label="Accounts pagination" class="mt-3">
+        <ul class="pagination justify-content-end">
+            <li class="page-item <?= $currentPage <= 1 ? 'disabled' : '' ?>">
+                <a class="page-link"
+                   href="<?= BASE_URL ?>/accounts?<?= http_build_query(['q' => $search, 'page' => $currentPage - 1]) ?>"
+                   <?= $currentPage <= 1 ? 'tabindex="-1" aria-disabled="true"' : '' ?>>
+                    Previous
+                </a>
+            </li>
+
+            <?php for ($page = 1; $page <= $totalPages; $page++): ?>
+                <li class="page-item <?= $page === $currentPage ? 'active' : '' ?>"
+                    <?= $page === $currentPage ? 'aria-current="page"' : '' ?>>
+                    <a class="page-link"
+                       href="<?= BASE_URL ?>/accounts?<?= http_build_query(['q' => $search, 'page' => $page]) ?>">
+                        <?= $page ?>
+                    </a>
+                </li>
+            <?php endfor; ?>
+
+            <li class="page-item <?= $currentPage >= $totalPages ? 'disabled' : '' ?>">
+                <a class="page-link"
+                   href="<?= BASE_URL ?>/accounts?<?= http_build_query(['q' => $search, 'page' => $currentPage + 1]) ?>"
+                   <?= $currentPage >= $totalPages ? 'tabindex="-1" aria-disabled="true"' : '' ?>>
+                    Next
+                </a>
+            </li>
+        </ul>
+    </nav>
 <?php endif; ?>
 
 <?php require_once __DIR__ . '/../layout/footer.php'; ?>

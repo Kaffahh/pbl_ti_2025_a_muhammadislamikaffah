@@ -76,11 +76,23 @@ class Accounts
     public function index()
     {
         $search = trim($_GET['q'] ?? '');
-        $accounts = $this->model->getAccounts($search);
+        $perPage = 10;
+        $totalAccounts = $this->model->countAccounts($search);
+        $totalPages = max(1, (int) ceil($totalAccounts / $perPage));
+        $currentPage = filter_var(
+            $_GET['page'] ?? 1,
+            FILTER_VALIDATE_INT,
+            ['options' => ['default' => 1, 'min_range' => 1]]
+        );
+        $currentPage = min($currentPage, $totalPages);
+        $offset = ($currentPage - 1) * $perPage;
+        $accounts = $this->model->getAccounts($search, $perPage, $offset);
 
         $this->load->view('views/accounts/index.php', [
             'accounts' => $accounts,
             'search' => $search,
+            'currentPage' => $currentPage,
+            'totalPages' => $totalPages,
         ]);
     }
 

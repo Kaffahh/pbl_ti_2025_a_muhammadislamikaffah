@@ -14,7 +14,36 @@ class AccountsModel
         $this->db = $conn;
     }
 
-    public function getAccounts($search = '')
+    public function countAccounts($search = '')
+    {
+        $sql = "
+            SELECT COUNT(*)
+            FROM accounts a
+            INNER JOIN account_type at ON at.id = a.account_type_id
+            WHERE a.deleted_at IS NULL
+              AND at.deleted_at IS NULL
+        ";
+        $params = [];
+
+        if ($search !== '') {
+            $sql .= "
+                AND (
+                    a.name LIKE ?
+                    OR a.email LIKE ?
+                    OR a.identification_number LIKE ?
+                )
+            ";
+            $keyword = '%' . $search . '%';
+            $params = [$keyword, $keyword, $keyword];
+        }
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($params);
+
+        return (int) $stmt->fetchColumn();
+    }
+
+    public function getAccounts($search = '', $limit = 10, $offset = 0)
     {
         $sql = "
             SELECT a.*, at.name AS account_type_name
@@ -37,7 +66,9 @@ class AccountsModel
             $params = [$keyword, $keyword, $keyword];
         }
 
-        $sql .= ' ORDER BY a.created_at DESC';
+        $limit = max(1, (int) $limit);
+        $offset = max(0, (int) $offset);
+        $sql .= " ORDER BY a.created_at DESC LIMIT {$limit} OFFSET {$offset}";
         $stmt = $this->db->prepare($sql);
         $stmt->execute($params);
 
