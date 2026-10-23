@@ -32,10 +32,23 @@ class Actions
     public function index()
     {
         $search = trim($_GET['q'] ?? '');
-        $actions = $this->model->getActions($search);
+        $perPage = 10;
+        $totalActions = $this->model->countActions($search);
+        $totalPages = max(1, (int) ceil($totalActions / $perPage));
+        $currentPage = filter_var(
+            $_GET['page'] ?? 1,
+            FILTER_VALIDATE_INT,
+            ['options' => ['default' => 1, 'min_range' => 1]]
+        );
+        $currentPage = min($currentPage, $totalPages);
+        $offset = ($currentPage - 1) * $perPage;
+        $actions = $this->model->getActions($search, $perPage, $offset);
+
         $this->load->view('views/actions/index.php', [
             'actions' => $actions,
             'search' => $search,
+            'currentPage' => $currentPage,
+            'totalPages' => $totalPages,
         ]);
     }
 
