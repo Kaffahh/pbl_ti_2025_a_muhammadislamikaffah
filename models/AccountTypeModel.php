@@ -14,15 +14,20 @@ class AccountTypeModel
         $this->db = $conn;
     }
 
-    public function countAccountType($search = '')
+    public function countAccountType($search = '', $searchColumn = 'name')
     {
         $sql = "SELECT COUNT(*) FROM account_type WHERE deleted_at IS NULL";
         $params = [];
 
+        $allowedColumns = ['name', 'description'];
+        $searchColumn = in_array($searchColumn, $allowedColumns, true)
+            ? $searchColumn
+            : 'name';
+
         if ($search !== '') {
-            $sql .= " AND (name LIKE ? OR description LIKE ?)";
+            $sql .= " AND {$searchColumn} LIKE ?";
             $keyword = '%' . $search . '%';
-            $params = [$keyword, $keyword];
+            $params = [$keyword];
         }
 
         $stmt = $this->db->prepare($sql);
@@ -31,15 +36,20 @@ class AccountTypeModel
         return (int) $stmt->fetchColumn();
     }
 
-    public function getAccountType($search = '', $limit = 10, $offset = 0)
+    public function getAccountType($search = '', $limit = 10, $offset = 0, $searchColumn = 'name')
     {
         $sql = "SELECT * FROM account_type WHERE deleted_at IS NULL";
         $params = [];
 
+        $allowedColumns = ['name', 'description'];
+        $searchColumn = in_array($searchColumn, $allowedColumns, true)
+            ? $searchColumn
+            : 'name';
+
         if ($search !== '') {
-            $sql .= " AND (name LIKE ? OR description LIKE ?)";
+            $sql .= " AND {$searchColumn} LIKE ?";
             $keyword = '%' . $search . '%';
-            $params = [$keyword, $keyword];
+            $params = [$keyword];
         }
 
         $limit = max(1, (int) $limit);

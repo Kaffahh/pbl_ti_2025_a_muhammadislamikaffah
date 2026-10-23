@@ -8,12 +8,26 @@
 </div>
 
 <form method="GET" action="<?= BASE_URL ?>/actions" class="mb-3">
-    <div class="input-group">
-        <input type="search" name="q" class="form-control"
-               placeholder="Search action name or description"
-               value="<?= htmlspecialchars($search ?? '') ?>">
-        <button class="btn btn-outline-primary" type="submit">Search</button>
-        <a href="<?= BASE_URL ?>/actions" class="btn btn-outline-secondary">Reset</a>
+    <div class="row g-2 align-items-center">
+        <div class="col-md-3">
+            <label for="actions-search-column" class="visually-hidden">Search column</label>
+            <select id="actions-search-column" name="column" class="form-select" required>
+            <option value="name" <?= ($searchColumn ?? 'name') === 'name' ? 'selected' : '' ?>>Name</option>
+            <option value="description" <?= ($searchColumn ?? '') === 'description' ? 'selected' : '' ?>>Description</option>
+            </select>
+        </div>
+        <div class="col">
+            <label for="actions-search-keyword" class="visually-hidden">Search keyword</label>
+            <input id="actions-search-keyword" type="search" name="keyword" class="form-control"
+                   placeholder="Enter keyword"
+                   value="<?= htmlspecialchars($search ?? '') ?>">
+        </div>
+        <div class="col-auto">
+            <button class="btn btn-outline-primary" type="submit">Search</button>
+        </div>
+        <div class="col-auto">
+            <a href="<?= BASE_URL ?>/actions" class="btn btn-outline-secondary">Reset</a>
+        </div>
     </div>
 </form>
 
@@ -65,7 +79,7 @@
         <ul class="pagination justify-content-end">
             <li class="page-item <?= $currentPage <= 1 ? 'disabled' : '' ?>">
                 <a class="page-link"
-                   href="<?= BASE_URL ?>/actions?<?= http_build_query(['q' => $search, 'page' => $currentPage - 1]) ?>"
+                   href="<?= BASE_URL ?>/actions?<?= http_build_query(['column' => $searchColumn, 'keyword' => $search, 'page' => $currentPage - 1]) ?>"
                    <?= $currentPage <= 1 ? 'tabindex="-1" aria-disabled="true"' : '' ?>>
                     Previous
                 </a>
@@ -75,7 +89,7 @@
                 <li class="page-item <?= $page === $currentPage ? 'active' : '' ?>"
                     <?= $page === $currentPage ? 'aria-current="page"' : '' ?>>
                     <a class="page-link"
-                       href="<?= BASE_URL ?>/actions?<?= http_build_query(['q' => $search, 'page' => $page]) ?>">
+                       href="<?= BASE_URL ?>/actions?<?= http_build_query(['column' => $searchColumn, 'keyword' => $search, 'page' => $page]) ?>">
                         <?= $page ?>
                     </a>
                 </li>
@@ -83,7 +97,7 @@
 
             <li class="page-item <?= $currentPage >= $totalPages ? 'disabled' : '' ?>">
                 <a class="page-link"
-                   href="<?= BASE_URL ?>/actions?<?= http_build_query(['q' => $search, 'page' => $currentPage + 1]) ?>"
+                   href="<?= BASE_URL ?>/actions?<?= http_build_query(['column' => $searchColumn, 'keyword' => $search, 'page' => $currentPage + 1]) ?>"
                    <?= $currentPage >= $totalPages ? 'tabindex="-1" aria-disabled="true"' : '' ?>>
                     Next
                 </a>

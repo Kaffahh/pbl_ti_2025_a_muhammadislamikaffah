@@ -31,9 +31,14 @@ class Actions
 
     public function index()
     {
-        $search = trim($_GET['q'] ?? '');
+        $searchColumn = $_GET['column'] ?? 'name';
+        $search = trim($_GET['keyword'] ?? '');
+        $allowedColumns = ['name', 'description'];
+        if (!in_array($searchColumn, $allowedColumns, true)) {
+            $searchColumn = 'name';
+        }
         $perPage = 10;
-        $totalActions = $this->model->countActions($search);
+        $totalActions = $this->model->countActions($search, $searchColumn);
         $totalPages = max(1, (int) ceil($totalActions / $perPage));
         $currentPage = filter_var(
             $_GET['page'] ?? 1,
@@ -42,11 +47,12 @@ class Actions
         );
         $currentPage = min($currentPage, $totalPages);
         $offset = ($currentPage - 1) * $perPage;
-        $actions = $this->model->getActions($search, $perPage, $offset);
+        $actions = $this->model->getActions($search, $perPage, $offset, $searchColumn);
 
         $this->load->view('views/actions/index.php', [
             'actions' => $actions,
             'search' => $search,
+            'searchColumn' => $searchColumn,
             'currentPage' => $currentPage,
             'totalPages' => $totalPages,
         ]);

@@ -31,9 +31,14 @@ class AccountType
 
     public function index()
     {
-        $search = trim($_GET['q'] ?? '');
+        $searchColumn = $_GET['column'] ?? 'name';
+        $search = trim($_GET['keyword'] ?? '');
+        $allowedColumns = ['name', 'description'];
+        if (!in_array($searchColumn, $allowedColumns, true)) {
+            $searchColumn = 'name';
+        }
         $perPage = 10;
-        $totalAccountTypes = $this->model->countAccountType($search);
+        $totalAccountTypes = $this->model->countAccountType($search, $searchColumn);
         $totalPages = max(1, (int) ceil($totalAccountTypes / $perPage));
         $currentPage = filter_var(
             $_GET['page'] ?? 1,
@@ -42,11 +47,12 @@ class AccountType
         );
         $currentPage = min($currentPage, $totalPages);
         $offset = ($currentPage - 1) * $perPage;
-        $accounttype = $this->model->getAccountType($search, $perPage, $offset);
+        $accounttype = $this->model->getAccountType($search, $perPage, $offset, $searchColumn);
 
         $this->load->view('views/accounttype/index.php', [
             'accounttype' => $accounttype,
             'search' => $search,
+            'searchColumn' => $searchColumn,
             'currentPage' => $currentPage,
             'totalPages' => $totalPages,
         ]);

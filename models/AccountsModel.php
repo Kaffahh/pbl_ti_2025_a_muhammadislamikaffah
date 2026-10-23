@@ -14,7 +14,7 @@ class AccountsModel
         $this->db = $conn;
     }
 
-    public function countAccounts($search = '')
+    public function countAccounts($search = '', $searchColumn = 'name')
     {
         $sql = "
             SELECT COUNT(*)
@@ -25,16 +25,17 @@ class AccountsModel
         ";
         $params = [];
 
+        $allowedColumns = [
+            'name' => 'a.name',
+            'email' => 'a.email',
+            'identification_number' => 'a.identification_number',
+        ];
+        $searchColumn = $allowedColumns[$searchColumn] ?? $allowedColumns['name'];
+
         if ($search !== '') {
-            $sql .= "
-                AND (
-                    a.name LIKE ?
-                    OR a.email LIKE ?
-                    OR a.identification_number LIKE ?
-                )
-            ";
+            $sql .= " AND {$searchColumn} LIKE ?";
             $keyword = '%' . $search . '%';
-            $params = [$keyword, $keyword, $keyword];
+            $params = [$keyword];
         }
 
         $stmt = $this->db->prepare($sql);
@@ -43,7 +44,7 @@ class AccountsModel
         return (int) $stmt->fetchColumn();
     }
 
-    public function getAccounts($search = '', $limit = 10, $offset = 0)
+    public function getAccounts($search = '', $limit = 10, $offset = 0, $searchColumn = 'name')
     {
         $sql = "
             SELECT a.*, at.name AS account_type_name
@@ -54,16 +55,17 @@ class AccountsModel
         ";
         $params = [];
 
+        $allowedColumns = [
+            'name' => 'a.name',
+            'email' => 'a.email',
+            'identification_number' => 'a.identification_number',
+        ];
+        $searchColumn = $allowedColumns[$searchColumn] ?? $allowedColumns['name'];
+
         if ($search !== '') {
-            $sql .= "
-                AND (
-                    a.name LIKE ?
-                    OR a.email LIKE ?
-                    OR a.identification_number LIKE ?
-                )
-            ";
+            $sql .= " AND {$searchColumn} LIKE ?";
             $keyword = '%' . $search . '%';
-            $params = [$keyword, $keyword, $keyword];
+            $params = [$keyword];
         }
 
         $limit = max(1, (int) $limit);

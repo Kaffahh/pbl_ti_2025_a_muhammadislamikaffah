@@ -75,9 +75,14 @@ class Accounts
 
     public function index()
     {
-        $search = trim($_GET['q'] ?? '');
+        $searchColumn = $_GET['column'] ?? 'name';
+        $search = trim($_GET['keyword'] ?? '');
+        $allowedColumns = ['name', 'email', 'identification_number'];
+        if (!in_array($searchColumn, $allowedColumns, true)) {
+            $searchColumn = 'name';
+        }
         $perPage = 10;
-        $totalAccounts = $this->model->countAccounts($search);
+        $totalAccounts = $this->model->countAccounts($search, $searchColumn);
         $totalPages = max(1, (int) ceil($totalAccounts / $perPage));
         $currentPage = filter_var(
             $_GET['page'] ?? 1,
@@ -86,11 +91,12 @@ class Accounts
         );
         $currentPage = min($currentPage, $totalPages);
         $offset = ($currentPage - 1) * $perPage;
-        $accounts = $this->model->getAccounts($search, $perPage, $offset);
+        $accounts = $this->model->getAccounts($search, $perPage, $offset, $searchColumn);
 
         $this->load->view('views/accounts/index.php', [
             'accounts' => $accounts,
             'search' => $search,
+            'searchColumn' => $searchColumn,
             'currentPage' => $currentPage,
             'totalPages' => $totalPages,
         ]);
